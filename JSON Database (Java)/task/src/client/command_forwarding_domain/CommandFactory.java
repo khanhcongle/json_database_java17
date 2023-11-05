@@ -1,8 +1,6 @@
-package client.app;
+package client.command_forwarding_domain;
 
-import client.command_forwarding_domain.Command;
-import client.command_forwarding_domain.CommandForwarder;
-import com.beust.jcommander.IStringConverter;
+import client.app.Configs;
 import com.beust.jcommander.JCommander;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,7 +41,7 @@ public class CommandFactory {
         }
     }
 
-    public static class RunableCommand extends Command implements Runnable {
+    public static class RunableCommand extends Command {
         CommandForwarder commandForwarder;
 
         RunableCommand(Command command, CommandForwarder commandForwarder) {
@@ -51,9 +49,9 @@ public class CommandFactory {
             this.commandForwarder = commandForwarder;
         }
 
-        @Override
-        public void run() {
-            this.commandForwarder.send(this);
+        public String exec() {
+            commandForwarder.send(this);
+            return commandForwarder.receive();
         }
     }
 }

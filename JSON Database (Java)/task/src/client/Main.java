@@ -1,6 +1,6 @@
 package client;
 
-import client.app.CommandFactory;
+import client.command_forwarding_domain.CommandFactory;
 import client.command_forwarding_domain.CommandForwarder;
 import com.google.gson.Gson;
 
@@ -29,8 +29,8 @@ public class Main {
 
             CommandFactory.from(args, commandForwarder)
                     .ifPresent(command -> {
-                        command.run();
-                        System.out.println("Received: " + commandForwarder.receive());
+                        String response = command.exec();
+                        System.out.println("Received: " + response);
                     });
         }
     }

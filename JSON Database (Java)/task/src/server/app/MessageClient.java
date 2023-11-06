@@ -9,23 +9,23 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class MessageClient<T> implements Closeable {
-    private final Function<Map, String> outputTranslator;
-    private final BiFunction<String, Type, T> inputTranslator;
+    private final Function<Map, String> toOutput;
+    private final BiFunction<String, Type, T> fromInput;
     private final DataInput input;
     private final DataOutput output;
     private final Socket socket;
     public MessageClient(Socket socket,
-                         Function<Map, String> outputTranslator,
-                         BiFunction<String, Type, T> inputTranslator) throws IOException {
+                         Function<Map, String> toOutput,
+                         BiFunction<String, Type, T> fromInput) throws IOException {
         this.socket = socket;
         this.input = new DataInputStream(socket.getInputStream());
         this.output = new DataOutputStream(socket.getOutputStream());
-        this.outputTranslator = outputTranslator;
-        this.inputTranslator = inputTranslator;
+        this.toOutput = toOutput;
+        this.fromInput = fromInput;
     }
     public T readNewMessage(Class<T> clazz) {
         try {
-            return inputTranslator.apply(input.readUTF(), clazz);
+            return fromInput.apply(input.readUTF(), clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -37,7 +37,7 @@ public class MessageClient<T> implements Closeable {
             if (message != null) {
                 map.put("value", message);
             }
-            output.writeUTF(outputTranslator.apply(map));
+            output.writeUTF(toOutput.apply(map));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +50,7 @@ public class MessageClient<T> implements Closeable {
             if (message != null) {
                 map.put("reason", message);
             }
-            output.writeUTF(outputTranslator.apply(map));
+            output.writeUTF(toOutput.apply(map));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

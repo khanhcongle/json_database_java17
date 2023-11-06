@@ -1,12 +1,7 @@
 package server.data_access_domain;
 
-import server.data_access_domain.service_provider.DataAccessProvider;
-import server.data_access_domain.service_provider.KeyValidator;
-import server.data_access_domain.service_provider.DataDeleter;
-import server.data_access_domain.service_provider.DataGetter;
-import server.data_access_domain.service_provider.DataUpdater;
+import server.data_access_domain.service_provider.*;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class DataAccessService<K extends Supplier & Comparable, T> {
@@ -14,7 +9,6 @@ public class DataAccessService<K extends Supplier & Comparable, T> {
     KeyValidator<K> keyValidator;
     DataUpdater<K, T> updater;
     DataDeleter<K> deleter;
-    Consumer<String> onError;
 
     public DataAccessService(DataAccessProvider<K, T> dataAdapter) {
         this.keyValidator = dataAdapter;
@@ -26,16 +20,9 @@ public class DataAccessService<K extends Supplier & Comparable, T> {
         validateKey(key);
         T value = this.getter.get(key);
         if (value == null) {
-            onError("No such key");
             return null;
         }
         return value;
-    }
-
-    private void onError(String message) {
-        if (onError != null) {
-            onError.accept(message);
-        }
     }
 
     private void validateKey(K key) {
@@ -49,7 +36,6 @@ public class DataAccessService<K extends Supplier & Comparable, T> {
 
     public void delete(K key) {
         if (!isExist(key)) {
-            onError("No such key");
             return;
         }
         deleter.delete(key);
